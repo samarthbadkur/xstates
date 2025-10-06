@@ -60,6 +60,8 @@ function Home() {
     }
   }, [country, state]);
 
+
+  // Learning - Always use useEffect when state is changed for fetching data so that when state changes, the data is always fetched in the sequence of code
   const handleCountryChange = (e) => {
     setCountry(e.target.value);
   };
@@ -86,7 +88,7 @@ function Home() {
         onChange={handleCountryChange}
         style={{ width: "100%", padding: "8px", marginBottom: "16px" }}
       >
-        <option value="">Select a country</option>
+        <option key="country-default" value="">Select a country</option>
         {countries.map((name) => (
           <option key={name} value={name}>{name}</option>
         ))}
@@ -100,7 +102,7 @@ function Home() {
         style={{ width: "100%", padding: "8px", marginBottom: "16px" }}
         disabled={!country || states.length === 0}
       >
-        <option value="">Select a state</option>
+        <option key="state-default" value="">Select a state</option>
         {states.map((name) => (
           <option key={name} value={name}>{name}</option>
         ))}
@@ -114,7 +116,7 @@ function Home() {
         style={{ width: "100%", padding: "8px", marginBottom: "16px" }}
         disabled={!state || cities.length === 0}
       >
-        <option value="">Select a city</option>
+        <option key="city-default" value="">Select a city</option>
         {cities.map((name) => (
           <option key={name} value={name}>{name}</option>
         ))}
