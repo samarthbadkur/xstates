@@ -13,7 +13,7 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Helper for error messages, specifically for API error handling
+  // Helper for error messages
   const getErrorMessage = (error, defaultMsg) => {
     if (error.response && error.response.status === 500) {
       return `${defaultMsg} (Server error - 500)`;
@@ -24,21 +24,22 @@ function Home() {
     return `${defaultMsg}: ${error.message}`;
   };
 
-  // Fetch countries on load
+  // Fetch countries on mount
   useEffect(() => {
     axios.get(API_URL)
       .then((res) => {
         setCountries(res.data);
         setLoading(false);
-        setError(null); // Clear previous errors
+        setError(null);
       })
       .catch((err) => {
-        setError(getErrorMessage(err, "Error fetching countries"));
+        const errorWithStatus = err.response ? err : { response: { status: 500 }, message: err.message };
+        setError(getErrorMessage(errorWithStatus, "Error fetching countries"));
         setLoading(false);
       });
   }, []);
 
-  // Fetch states after country change
+  // Fetch states after country selection
   useEffect(() => {
     if (country) {
       axios.get(`https://crio-location-selector.onrender.com/country=${country}/states`)
@@ -47,17 +48,19 @@ function Home() {
           setError(null);
         })
         .catch((err) => {
-          setError(getErrorMessage(err, "Error fetching states"));
+          const errorWithStatus = err.response ? err : { response: { status: 500 }, message: err.message };
+          setError(getErrorMessage(errorWithStatus, "Error fetching states"));
         });
     } else {
       setStates([]);
       setState("");
       setCities([]);
       setCity("");
+      setError(null);
     }
   }, [country]);
 
-  // Fetch cities after state change
+  // Fetch cities after state selection
   useEffect(() => {
     if (country && state) {
       axios.get(`https://crio-location-selector.onrender.com/country=${country}/state=${state}/cities`)
@@ -66,11 +69,13 @@ function Home() {
           setError(null);
         })
         .catch((err) => {
-          setError(getErrorMessage(err, "Error fetching cities"));
+          const errorWithStatus = err.response ? err : { response: { status: 500 }, message: err.message };
+          setError(getErrorMessage(errorWithStatus, "Error fetching cities"));
         });
     } else {
       setCities([]);
       setCity("");
+      setError(null);
     }
   }, [country, state]);
 
