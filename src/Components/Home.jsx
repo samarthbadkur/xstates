@@ -13,6 +13,14 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Helper for error messages
+  const getErrorMessage = (error, defaultMsg) => {
+    if (error.response && error.response.status === 500) {
+      return `${defaultMsg} (Server error - 500)`;
+    }
+    return `${defaultMsg}: ${error.message}`;
+  };
+
   // Fetch countries on mount
   useEffect(() => {
     axios.get(API_URL)
@@ -21,7 +29,7 @@ function Home() {
         setLoading(false);
       })
       .catch((err) => {
-        setError("Error fetching countries: " + err.message);
+        setError(getErrorMessage(err, "Error fetching countries"));
         setLoading(false);
       });
   }, []);
@@ -32,15 +40,17 @@ function Home() {
       axios.get(`https://crio-location-selector.onrender.com/country=${country}/states`)
         .then((res) => {
           setStates(res.data);
+          setError(null); // Clear any previous error on success
         })
         .catch((err) => {
-          setError("Error fetching states: " + err.message);
+          setError(getErrorMessage(err, "Error fetching states"));
         });
     } else {
       setStates([]);
       setState("");
       setCities([]);
       setCity("");
+      setError(null);
     }
   }, [country]);
 
@@ -50,18 +60,19 @@ function Home() {
       axios.get(`https://crio-location-selector.onrender.com/country=${country}/state=${state}/cities`)
         .then((res) => {
           setCities(res.data);
+          setError(null);
         })
         .catch((err) => {
-          setError("Error fetching cities: " + err.message);
+          setError(getErrorMessage(err, "Error fetching cities"));
         });
     } else {
       setCities([]);
       setCity("");
+      setError(null);
     }
   }, [country, state]);
 
-
-  // Learning - Always use useEffect when state is changed for fetching data so that when state changes, the data is always fetched in the sequence of code
+  // Handlers for selection changes
   const handleCountryChange = (e) => {
     setCountry(e.target.value);
   };
@@ -77,9 +88,9 @@ function Home() {
   return (
     <div style={{ padding: "20px", maxWidth: "360px", margin: "auto", fontFamily: "Arial, sans-serif" }}>
       <h2>Select Location</h2>
-{/* 
+
       {loading && <div>Loading...</div>}
-      {error && <div style={{ color: "red", marginBottom: "16px" }}>{error}</div>} */}
+      {error && <div style={{ color: "red", marginBottom: "16px" }}>{error}</div>}
 
       <label htmlFor="country-select" style={{ display: "block", marginBottom: "5px" }}>Country</label>
       <select
