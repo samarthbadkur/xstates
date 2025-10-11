@@ -13,20 +13,24 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Helper for error messages
+  // Helper for error messages, specifically for API error handling
   const getErrorMessage = (error, defaultMsg) => {
     if (error.response && error.response.status === 500) {
       return `${defaultMsg} (Server error - 500)`;
     }
+    if (error.response) {
+      return `${defaultMsg} (${error.response.status})`;
+    }
     return `${defaultMsg}: ${error.message}`;
   };
 
-  // Fetch countries on mount
+  // Fetch countries on load
   useEffect(() => {
     axios.get(API_URL)
       .then((res) => {
         setCountries(res.data);
         setLoading(false);
+        setError(null); // Clear previous errors
       })
       .catch((err) => {
         setError(getErrorMessage(err, "Error fetching countries"));
@@ -34,13 +38,13 @@ function Home() {
       });
   }, []);
 
-  // Fetch states after country selection
+  // Fetch states after country change
   useEffect(() => {
     if (country) {
       axios.get(`https://crio-location-selector.onrender.com/country=${country}/states`)
         .then((res) => {
           setStates(res.data);
-          setError(null); // Clear any previous error on success
+          setError(null);
         })
         .catch((err) => {
           setError(getErrorMessage(err, "Error fetching states"));
@@ -50,11 +54,10 @@ function Home() {
       setState("");
       setCities([]);
       setCity("");
-      setError(null);
     }
   }, [country]);
 
-  // Fetch cities after state selection
+  // Fetch cities after state change
   useEffect(() => {
     if (country && state) {
       axios.get(`https://crio-location-selector.onrender.com/country=${country}/state=${state}/cities`)
@@ -68,22 +71,12 @@ function Home() {
     } else {
       setCities([]);
       setCity("");
-      setError(null);
     }
   }, [country, state]);
 
-  // Handlers for selection changes
-  const handleCountryChange = (e) => {
-    setCountry(e.target.value);
-  };
-
-  const handleStateChange = (e) => {
-    setState(e.target.value);
-  };
-
-  const handleCityChange = (e) => {
-    setCity(e.target.value);
-  };
+  const handleCountryChange = (e) => setCountry(e.target.value);
+  const handleStateChange = (e) => setState(e.target.value);
+  const handleCityChange = (e) => setCity(e.target.value);
 
   return (
     <div style={{ padding: "20px", maxWidth: "360px", margin: "auto", fontFamily: "Arial, sans-serif" }}>
