@@ -17,7 +17,11 @@ const Home = () => {
         setCountries(response.data);
       })
       .catch((error) => {
-        console.error("Error fetching countries:", error);
+        if (error.response && error.response.status === 500) {
+          console.error("Server error (500) fetching countries.");
+        } else {
+          console.error("Error fetching countries:", error);
+        }
       });
   }, []);
 
@@ -29,12 +33,16 @@ const Home = () => {
         )
         .then((response) => {
           setStates(response.data);
-          setSelectedState(""); // Reset state selection
-          setCities([]); // Clear cities
-          setSelectedCity(""); // Reset city selection
+          setSelectedState("");
+          setCities([]);
+          setSelectedCity("");
         })
         .catch((error) => {
-          console.error("Error fetching states:", error);
+          if (error.response && error.response.status === 500) {
+            console.error("Server error (500) fetching states.");
+          } else {
+            console.error("Error fetching states:", error);
+          }
         });
     }
   }, [selectedCountry]);
@@ -47,10 +55,14 @@ const Home = () => {
         )
         .then((response) => {
           setCities(response.data);
-          setSelectedCity(""); // Reset city selection
+          setSelectedCity("");
         })
         .catch((error) => {
-          console.error("Error fetching cities:", error);
+          if (error.response && error.response.status === 500) {
+            console.error("Server error (500) fetching cities.");
+          } else {
+            console.error("Error fetching cities:", error);
+          }
         });
     }
   }, [selectedCountry, selectedState]);
