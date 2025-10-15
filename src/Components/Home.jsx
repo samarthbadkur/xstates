@@ -9,17 +9,21 @@ const Home = () => {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     axios
       .get("https://crio-location-selector.onrender.com/countries")
       .then((response) => {
         setCountries(response.data);
+        setError("");
       })
       .catch((error) => {
-        if (error.response && error.response.status === 500) {
+        if (!error.response || error.response.status === 500) {
+          setError("Server error (500) fetching countries.");
           console.error("Server error (500) fetching countries.");
         } else {
+          setError("Error fetching countries.");
           console.error("Error fetching countries:", error);
         }
       });
@@ -36,11 +40,14 @@ const Home = () => {
           setSelectedState("");
           setCities([]);
           setSelectedCity("");
+          setError("");
         })
         .catch((error) => {
-          if (error.response && error.response.status === 500) {
+          if (!error.response || error.response.status === 500) {
+            setError("Server error (500) fetching states.");
             console.error("Server error (500) fetching states.");
           } else {
+            setError("Error fetching states.");
             console.error("Error fetching states:", error);
           }
         });
@@ -56,11 +63,14 @@ const Home = () => {
         .then((response) => {
           setCities(response.data);
           setSelectedCity("");
+          setError("");
         })
         .catch((error) => {
-          if (error.response && error.response.status === 500) {
+          if (!error.response || error.response.status === 500) {
+            setError("Server error (500) fetching cities.");
             console.error("Server error (500) fetching cities.");
           } else {
+            setError("Error fetching cities.");
             console.error("Error fetching cities:", error);
           }
         });
@@ -70,6 +80,7 @@ const Home = () => {
   return (
     <div className={styles["city-selector"]}>
       <h1>Select Location</h1>
+      {error && <div className={styles.error}>{error}</div>}
       <div className={styles.dropdowns}>
         <select
           value={selectedCountry}
